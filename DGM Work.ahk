@@ -11,6 +11,17 @@ LoadDelay := 5000                    ; Wait 5 seconds for Discord to load
 WindowTitle := "Discord"             ; Window title to verify Discord is active
 ; ===========================
 
+#Requires AutoHotkey v2.0
+#SingleInstance Force
+
+; ===== CONFIGURATION =====
+; ... your configuration here ...
+
+; Startup notification
+TrayTip("Discord Script", "Script loaded! Press Shift+Ctrl+F23 to start.", 3)
+ToolTip("Discord Script Ready - Press Shift+Ctrl+F23")
+SetTimer(() => ToolTip(), -5000)  ; Clear after 5 seconds
+
 ; Global state variable
 global ScriptRunning := false
 
