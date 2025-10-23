@@ -5,49 +5,20 @@
 TraySetIcon("Shell32.dll", 168)
 A_IconTip := "Discord Auto-Poster (Inactive)"
 
-
-; ===== CONFIGURATION FROM INI =====
-IniFile := A_ScriptDir "\dgm_work.ini"
-Section := "Config"
-
-; Default values
-DefaultActivateHotkey := "+^F23" ; Shift+Ctrl+F23
-DefaultStatusHotkey := "+^F22"   ; Shift+Ctrl+F22
-DefaultEmergencyHotkey := "+^Esc" ; Shift+Ctrl+Esc
-DefaultServerID := "1313437447098732594"
-DefaultChannelID := "1427795772614901801"
-DefaultMaxDelay := "4500000"      ; 75 min in ms
-DefaultMinDelay := "3660000"      ; 61 min in ms
-
-; Write defaults if missing
-IniWrite(DefaultActivateHotkey, IniFile, Section, "ACTIVATE_TOGGLE_HOTKEY")
-IniWrite(DefaultStatusHotkey, IniFile, Section, "STATUS_CHECK_HOTKEY")
-IniWrite(DefaultEmergencyHotkey, IniFile, Section, "EMERGENCY_STOP_HOTKEY")
-IniWrite(DefaultServerID, IniFile, Section, "SERVER_ID")
-IniWrite(DefaultChannelID, IniFile, Section, "CHANNEL_ID")
-IniWrite(DefaultMaxDelay, IniFile, Section, "MAX_DELAY_INTERVAL")
-IniWrite(DefaultMinDelay, IniFile, Section, "MIN_DELAY_INTERVAL")
-
-; Read config from INI
-ActivateHotkey := IniRead(IniFile, Section, "ACTIVATE_TOGGLE_HOTKEY", DefaultActivateHotkey)
-StatusHotkey := IniRead(IniFile, Section, "STATUS_CHECK_HOTKEY", DefaultStatusHotkey)
-EmergencyHotkey := IniRead(IniFile, Section, "EMERGENCY_STOP_HOTKEY", DefaultEmergencyHotkey)
-ServerID := IniRead(IniFile, Section, "SERVER_ID", DefaultServerID)
-ChannelID := IniRead(IniFile, Section, "CHANNEL_ID", DefaultChannelID)
-MaxInterval := IniRead(IniFile, Section, "MAX_DELAY_INTERVAL", DefaultMaxDelay)
-MinInterval := IniRead(IniFile, Section, "MIN_DELAY_INTERVAL", DefaultMinDelay)
-ChannelURL := "discord://discord.com/channels/" ServerID "/" ChannelID
+; ===== CONFIGURATION =====
+MinInterval := 3660000               ; 61 minutes in milliseconds
+MaxInterval := 4500000               ; 75 minutes in milliseconds
+ChannelURL := "discord://discord.com/channels/1313437447098732594/1428411530348724344" ; DGM server, dgm-clockin-clockout channel
 Message := "/work"
-LoadDelay := 5000
-WindowTitle := "Discord"
+LoadDelay := 5000                    ; Wait 5 seconds for Discord to load
+WindowTitle := "Discord"             ; Window title to verify Discord is active
 ; ===========================
 
 global ScriptRunning := false
 
-
 ; Custom tray menu
 A_TrayMenu.Delete()
-A_TrayMenu.Add("Start Script (" ActivateHotkey ")", (*) => ToggleScript())
+A_TrayMenu.Add("Start Script (Shift+Ctrl+F23)", (*) => ToggleScript())
 A_TrayMenu.Add("Stop Script", (*) => StopScript())
 A_TrayMenu.Add()
 A_TrayMenu.Add("Exit", (*) => ExitApp())
@@ -94,27 +65,29 @@ StopScript() {
     UpdateTrayIcon()
 }
 
-
 ; ===== HOTKEYS =====
-Hotkey(ActivateHotkey, ToggleScript)
-Hotkey(EmergencyHotkey, StopScript)
-Hotkey(StatusHotkey, StatusHotkeyHandler)
-Hotkey("+^F24", ManualTriggerHandler)
+; Toggle script on/off with Shift+Ctrl+F23
++^F23:: ToggleScript()
 
-StatusHotkeyHandler() {
-    global ScriptRunning
-    Status := ScriptRunning ? "RUNNING" : "STOPPED"
-    TrayTip("Discord Script", "Script is alive! State: " Status, 2)
-}
+; Emergency stop with Shift+Ctrl+Esc
++^Esc:: StopScript()
 
-ManualTriggerHandler() {
+; Manual trigger with Shift+Ctrl+F24
++^F24:: {
     global ScriptRunning
     if (ScriptRunning) {
         TrayTip("Discord Script", "Sending message now...", 1)
         SendDiscordMsg()
     } else {
-        TrayTip("Discord Script", "Script is not running. Press " ActivateHotkey " to start.", 1)
+        TrayTip("Discord Script", "Script is not running. Press Shift+Ctrl+F23 to start.", 1)
     }
+}
+
+; Status check with Shift+Ctrl+F22
++^F22:: {
+    global ScriptRunning
+    Status := ScriptRunning ? "RUNNING" : "STOPPED"
+    TrayTip("Discord Script", "Script is alive! State: " Status, 2)
 }
 
 ; ===== MAIN FUNCTIONS =====
