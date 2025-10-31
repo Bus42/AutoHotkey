@@ -17,20 +17,18 @@ WindowTitle := "Discord"             ; Window title to verify Discord is active
 global ScriptRunning := false
 
 ; Custom tray menu
-A_TrayMenu.Delete()
-A_TrayMenu.Add("Start Script (Shift+Ctrl+F23)", (*) => ToggleScript())
-A_TrayMenu.Add("Stop Script", (*) => StopScript())
-A_TrayMenu.Add()
-A_TrayMenu.Add("Exit", (*) => ExitApp())
+
+; Remove tray menu controls and set interval for auto-posting
+PostInterval := 60000 ; 60 seconds
 
 ; Update tray icon based on state
 UpdateTrayIcon() {
     global ScriptRunning
     if (ScriptRunning) {
-        A_IconTip := "Discord Auto-Poster (ACTIVE)"
+        A_IconTip := "DGM Auto-Poster (ACTIVE)"
         TraySetIcon("Shell32.dll", 166)
     } else {
-        A_IconTip := "Discord Auto-Poster (Inactive)"
+        A_IconTip := "DGM Auto-Poster (Inactive)"
         TraySetIcon("Shell32.dll", 168)
     }
 }
@@ -65,30 +63,13 @@ StopScript() {
     UpdateTrayIcon()
 }
 
-; ===== HOTKEYS =====
-; Toggle script on/off with Shift+Ctrl+F23
-+^F23:: ToggleScript()
 
-; Emergency stop with Shift+Ctrl+Esc
-+^Esc:: StopScript()
-
-; Manual trigger with Shift+Ctrl+F24
-+^F24:: {
-    global ScriptRunning
-    if (ScriptRunning) {
-        TrayTip("Discord Script", "Sending message now...", 1)
-        SendDiscordMsg()
-    } else {
-        TrayTip("Discord Script", "Script is not running. Press Shift+Ctrl+F23 to start.", 1)
-    }
-}
-
-; Status check with Shift+Ctrl+F22
-+^F22:: {
-    global ScriptRunning
-    Status := ScriptRunning ? "RUNNING" : "STOPPED"
-    TrayTip("Discord Script", "Script is alive! State: " Status, 2)
-}
+; ===== AUTO STARTUP =====
+ScriptRunning := true
+TrayTip("Discord Script", "Script STARTED - Sending first message now...", 1)
+UpdateTrayIcon()
+SendDiscordMsg()
+ScheduleNextMessage()
 
 ; ===== MAIN FUNCTIONS =====
 
@@ -142,12 +123,10 @@ SendDiscordMsg() {
     ; Send the message (first Enter selects command, second sends it)
     Send(Message)
     Sleep(100)
-    Send("{Enter}{Enter}")
+    Send("{Enter}")
+    Sleep(100)
+    Send("{Enter}")
     
     TrayTip("Discord Script", "Message sent!", 1)
 }
 
-; Startup notification
-TrayTip("Discord Script", "Loaded! Press Shift+Ctrl+F23 to start.", 3)
-ToolTip("Discord Script Ready - Press Shift+Ctrl+F23")
-SetTimer(() => ToolTip(), -5000)
