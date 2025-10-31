@@ -124,7 +124,7 @@ SendDiscordMsg() {
     Send(Message)
     Sleep(100)
     Send("{Enter}")
-    Sleep(100)
+    Sleep(250)
     Send("{Enter}")
     
     TrayTip("Discord Script", "Message sent!", 1)
