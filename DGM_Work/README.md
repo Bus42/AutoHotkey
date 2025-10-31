@@ -1,1 +1,1 @@
-Posts to the provided channel at one hour + 1-15 minute delay
+Posts to the Dirt Gang Mafia #dgm-clockin-clockout channel at one hour + 1-15 minute delay

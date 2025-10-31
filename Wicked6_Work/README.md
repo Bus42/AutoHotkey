@@ -1,0 +1,1 @@
+Posts to the Wicked Streamers #working channel at one hour + 1-15 minute delay
